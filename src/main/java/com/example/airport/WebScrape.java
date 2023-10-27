@@ -7,7 +7,7 @@ import org.jsoup.nodes.Element;
 public class WebScrape {
 
 
-    public static void main(String[] args) {
+    public static void scrapeDepartures() {
 
         final String url = "https://www.flightradar24.com/data/airports/krk/departures";
 
