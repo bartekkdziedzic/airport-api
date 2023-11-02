@@ -1,11 +1,9 @@
 package com.example.airport.controller;
 
-import com.example.airport.model.Departure;
+import com.example.airport.model.Response;
 import com.example.airport.service.DepartureService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 public class DepartureController {
@@ -18,7 +16,7 @@ public class DepartureController {
 
 
     @GetMapping(value = "")
-    public List<Departure> getData() {
+    public Response getData() {
 
         return departureService.getDepartures();
     }
