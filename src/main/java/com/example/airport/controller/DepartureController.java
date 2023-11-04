@@ -1,11 +1,14 @@
 package com.example.airport.controller;
 
-import com.example.airport.model.Response;
+import com.example.airport.model.Departure;
 import com.example.airport.service.DepartureService;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
+@RequestMapping("/api")
 public class DepartureController {
 
     private DepartureService departureService;
@@ -15,8 +18,8 @@ public class DepartureController {
     }
 
 
-    @GetMapping(value = "")
-    public Response getData() {
+    @RequestMapping("/fly")
+    public List<Departure> getData() {
 
         return departureService.getDepartures();
     }
