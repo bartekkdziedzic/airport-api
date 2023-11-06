@@ -42,4 +42,11 @@ public class DepartureService {
         return departureResponse.getResponse();
     }
 
+//    public List<Departure> deserializeResponse(){
+//        getDepartures();
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        DepartureResponse departureResponse = objectMapper.readValue(getDepartures());
+//    }
+
+
 }

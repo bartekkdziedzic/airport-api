@@ -11,7 +11,7 @@ import java.util.List;
 @RequestMapping("/api")
 public class DepartureController {
 
-    private DepartureService departureService;
+    private final DepartureService departureService;
 
     public DepartureController(DepartureService departureService) {
         this.departureService = departureService;
