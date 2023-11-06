@@ -48,5 +48,4 @@ public class DepartureService {
 //        DepartureResponse departureResponse = objectMapper.readValue(getDepartures());
 //    }
 
-
 }

@@ -35,7 +35,7 @@ public class CalculationService {
         return enumMap;
     }
 
-    public void getGraphMap() { // based on api response timestamp extremes create preparation blank graph table ('formattedTime',Integer)
+    public void getGraphMap() { // based on api response timestamp extremes - create empty graph table ('formattedTime',Integer)
         LocalDateTime maxGraphTimestamp = getMaxTimestamp();
         LocalDateTime minTimestamp = getMinTimestamp();
         LocalDateTime minGraphTimestamp = getAdaptationDifferenceTimestamp(minTimestamp);
@@ -44,7 +44,7 @@ public class CalculationService {
         LocalDateTime iterationTimestamp = minGraphTimestamp;
         while (minGraphTimestamp.isBefore(maxGraphTimestamp)) {
             graphMap.put(iterationTimestamp, 0);
-            iterationTimestamp = iterationTimestamp.plusMinutes(5);
+            iterationTimestamp = iterationTimestamp.plusMinutes(1);
         }
     }
 
@@ -62,12 +62,12 @@ public class CalculationService {
     private void calculateSingleDeparture(Departure departure) {
 
         //use distribution adaptation method
-            HashMap<LocalDateTime, Integer> adaptedDistributionMap = adaptDistribution(departure.getDep_time());
+        HashMap<LocalDateTime, Integer> adaptedDistributionMap = adaptDistribution(departure.getDep_time());
         //use getPassengerAmount
-            Integer passengerAmount = getPassengerAmount(departure);
+        Integer passengerAmount = getPassengerAmount(departure);
 
         //create dedicatedDistributionMap by modifying adapted distribution
-             Map<LocalDateTime, Integer> dedicatedDistributionMap = adaptedDistributionMap.entrySet()
+        Map<LocalDateTime, Integer> dedicatedDistributionMap = adaptedDistributionMap.entrySet()
                 .stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
@@ -90,7 +90,7 @@ public class CalculationService {
         shortestDistributionMap.put(time.minusMinutes(120), 10); // all values divide by 100
 
 
-        //use distribution adaptation method
+        //define distribution adaptation method
 
 
         return shortestDistributionMap; //distribution example taken
@@ -112,13 +112,16 @@ public class CalculationService {
 
     private LocalDateTime getAdaptationDifferenceTimestamp(LocalDateTime minTimestamp) { //get earliest timestamp from response
         // based on hour passengers tend to arrive with different notice
-
+        // adaptation logic
         return minTimestamp.minusHours(2); //estimation for development process
     }
 
     private Integer getPassengerAmount(Departure departure) { //possible redirect to double/float
-
-        return aircraftCapacityMap.get(departure.getAircraft_icao());
+        try {
+            return aircraftCapacityMap.get(departure.getAircraft_icao());
+        } catch (NullPointerException nullPointerException) {
+            return 150; //default value when api provides no aircraft model
+        }
     }
 
 }
