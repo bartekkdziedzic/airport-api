@@ -80,14 +80,36 @@ public class CalculationService {
     private HashMap<LocalDateTime, Integer> adaptDistribution(LocalDateTime time) {
 
         // longest boundary distribution
-
+        HashMap<LocalDateTime, Integer> longestDistributionMap = new HashMap<LocalDateTime, Integer>();
+        longestDistributionMap.put(time, 0);
+        longestDistributionMap.put(time.minusMinutes(15), 0);
+        longestDistributionMap.put(time.minusMinutes(30), 2);
+        longestDistributionMap.put(time.minusMinutes(45), 8);
+        longestDistributionMap.put(time.minusMinutes(60), 17);
+        longestDistributionMap.put(time.minusMinutes(75), 26);
+        longestDistributionMap.put(time.minusMinutes(90), 28);
+        longestDistributionMap.put(time.minusMinutes(105), 27);
+        longestDistributionMap.put(time.minusMinutes(120), 20);
+        longestDistributionMap.put(time.minusMinutes(135), 13);
+        longestDistributionMap.put(time.minusMinutes(150), 9);
+        longestDistributionMap.put(time.minusMinutes(165), 7);
+        longestDistributionMap.put(time.minusMinutes(180), 5);
+        longestDistributionMap.put(time.minusMinutes(195), 5);
+        longestDistributionMap.put(time.minusMinutes(210), 2);
+        longestDistributionMap.put(time.minusMinutes(225), 1); // all values divide by 100
+        
         // shortest boundary distribution
         HashMap<LocalDateTime, Integer> shortestDistributionMap = new HashMap<LocalDateTime, Integer>();
         shortestDistributionMap.put(time, 0);
-        shortestDistributionMap.put(time.minusMinutes(30), 10);
-        shortestDistributionMap.put(time.minusMinutes(60), 40);
-        shortestDistributionMap.put(time.minusMinutes(90), 40);
-        shortestDistributionMap.put(time.minusMinutes(120), 10); // all values divide by 100
+        shortestDistributionMap.put(time.minusMinutes(15), 0);
+        shortestDistributionMap.put(time.minusMinutes(30), 2);
+        shortestDistributionMap.put(time.minusMinutes(45), 10);
+        shortestDistributionMap.put(time.minusMinutes(60), 17);
+        shortestDistributionMap.put(time.minusMinutes(75), 30);
+        shortestDistributionMap.put(time.minusMinutes(90), 26);
+        shortestDistributionMap.put(time.minusMinutes(105), 10);
+        shortestDistributionMap.put(time.minusMinutes(120), 4);
+        shortestDistributionMap.put(time.minusMinutes(135), 1); // all values divide by 100
 
 
         //define distribution adaptation method
