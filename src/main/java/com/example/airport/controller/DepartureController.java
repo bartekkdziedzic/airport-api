@@ -18,10 +18,10 @@ public class DepartureController {
     }
 
 
-    @RequestMapping("/fly")
-    public List<Departure> getData() {
-
-        return departureService.getDepartures();
-    }
+//   @RequestMapping("/fly")
+//    public List<Departure> getData() {
+//
+//        return departureService.getDepartures();
+//    }
 
 }

@@ -14,15 +14,16 @@ import java.util.stream.Collectors;
 @Service
 public class CalculationService {
 
-    DepartureService departureService;
-    EnumMap<AircraftCode, Integer> aircraftCapacityMap;
+    private DepartureService departureService;
+    private final EnumMap<AircraftCode, Integer> aircraftCapacityMap;
+    private List<Departure> departures;
 
     public CalculationService(DepartureService departureService) {
         this.departureService = departureService;
         this.aircraftCapacityMap = getAircraftCapacityMap();
+        this.departures = departureService.getDepartures();
     }
 
-    List<Departure> departures = departureService.getDepartures();
 
     public final EnumMap<AircraftCode, Integer> getAircraftCapacityMap() {
 
@@ -51,7 +52,7 @@ public class CalculationService {
 
     private void recalculateDepartureGraph(Departure departure) { //sum passenger Integer values corresponding to timestamp
 
-        //use calculateDingleDeparture
+        //use calculateSingleDeparture
         //distribute passengers on main graph
         //  map2.forEach((key, value) -> map1.merge(key, value, Integer::sum));
 
@@ -62,7 +63,7 @@ public class CalculationService {
     private void calculateSingleDeparture(Departure departure) {
 
         //use distribution adaptation method
-        HashMap<LocalDateTime, Integer> adaptedDistributionMap = adaptDistribution(departure.getDep_time());
+        HashMap<LocalDateTime, Integer> adaptedDistributionMap = adaptDistribution(LocalDateTime.parse(departure.dep_time()));
         //use getPassengerAmount
         Integer passengerAmount = getPassengerAmount(departure);
 
@@ -97,7 +98,7 @@ public class CalculationService {
         longestDistributionMap.put(time.minusMinutes(195), 5);
         longestDistributionMap.put(time.minusMinutes(210), 2);
         longestDistributionMap.put(time.minusMinutes(225), 1); // all values divide by 100
-        
+
         // shortest boundary distribution
         HashMap<LocalDateTime, Integer> shortestDistributionMap = new HashMap<LocalDateTime, Integer>();
         shortestDistributionMap.put(time, 0);
@@ -120,14 +121,14 @@ public class CalculationService {
 
     private LocalDateTime getMaxTimestamp() { //get latest timestamp from response
         return departures.stream()
-                .map(Departure::getDep_time)
+                .map(departure -> LocalDateTime.parse(departure.dep_time()))
                 .max(LocalDateTime::compareTo)
                 .orElse(null);
     }
 
     private LocalDateTime getMinTimestamp() { //get earliest timestamp from response
         return departures.stream()
-                .map(Departure::getDep_time)
+                .map(departure -> LocalDateTime.parse(departure.dep_time()))              // replaced from .map(Departure::dep_time)
                 .min(LocalDateTime::compareTo)
                 .orElse(null);
     }
@@ -140,7 +141,7 @@ public class CalculationService {
 
     private Integer getPassengerAmount(Departure departure) { //possible redirect to double/float
         try {
-            return aircraftCapacityMap.get(departure.getAircraft_icao());
+            return aircraftCapacityMap.get(departure.aircraft_icao());
         } catch (NullPointerException nullPointerException) {
             return 150; //default value when api provides no aircraft model
         }

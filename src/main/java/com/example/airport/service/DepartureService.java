@@ -12,7 +12,7 @@ import java.util.List;
 @Service
 public class DepartureService {
 
-    private final WebClient.Builder webClient;
+    private WebClient.Builder webClient;
 
     public DepartureService(WebClient.Builder webClient) {
         this.webClient = webClient.baseUrl(baseUrl);
@@ -23,23 +23,27 @@ public class DepartureService {
     private final static String depIata = "KRK";
 
     public List<Departure> getDepartures() {
-
-        DepartureResponse departureResponse = webClient
-                .build()
-                .get()
-                .uri(uriBuilder -> uriBuilder
-                        .queryParam("api_key", accessKey)
-                        .queryParam("dep_iata", depIata)
-                        .build())
-                .retrieve()
-                .onStatus(
-                        status -> status.is4xxClientError() || status.is5xxServerError(),
-                        response -> Mono.error(new Exception("wrong query"))
-                )
-                .bodyToMono(new ParameterizedTypeReference<DepartureResponse>() {
-                })
-                .block();
-        return departureResponse.getResponse();
+        try {
+            DepartureResponse departureResponse = webClient
+                    .build()
+                    .get()
+                    .uri(uriBuilder -> uriBuilder
+                            .queryParam("api_key", accessKey)
+                            .queryParam("dep_iata", depIata)
+                            .build())
+                    .retrieve()
+                    .onStatus(
+                            status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> Mono.error(new Exception("wrong query"))
+                    )
+                    .bodyToMono(new ParameterizedTypeReference<DepartureResponse>() {
+                    })
+                    .blockOptional()
+                    .orElseThrow(() -> new RuntimeException("body is null"));
+            return departureResponse.getResponse();
+        } catch (Exception e) {
+            throw new RuntimeException("exception caught", e);
+        }
     }
 
 //    public List<Departure> deserializeResponse(){
