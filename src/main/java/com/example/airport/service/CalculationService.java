@@ -7,10 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,13 +16,11 @@ public class CalculationService {
 
     private DepartureService departureService;
     private final EnumMap<AircraftCode, Integer> aircraftCapacityMap;
-    private final List<Departure> departures;
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     public CalculationService(DepartureService departureService) {
         this.departureService = departureService;
         this.aircraftCapacityMap = getAircraftCapacityMap();
-        this.departures = departureService.getDepartures();
     }
 
 
@@ -34,6 +29,7 @@ public class CalculationService {
         EnumMap<AircraftCode, Integer> enumMap = new EnumMap<AircraftCode, Integer>(AircraftCode.class);
         enumMap.put(AircraftCode.A20N, 160);
         enumMap.put(AircraftCode.A320, 150);
+        enumMap.put(AircraftCode.B738, 165);
         enumMap.put(AircraftCode.B38M, 186);
         enumMap.put(AircraftCode.DH8D, 39);
         enumMap.put(AircraftCode.E75L, 82);
@@ -43,24 +39,9 @@ public class CalculationService {
         return enumMap;
     }
 
-    public HashMap<LocalDateTime, Integer> getGraphMap() { // based on api response timestamp extremes - create empty graph table ('formattedTime',Integer)
-        LocalDateTime maxGraphTimestamp = getMaxTimestamp();
-        LocalDateTime minTimestamp = getMinTimestamp();
-        LocalDateTime minGraphTimestamp = getAdaptationDifferenceTimestamp(minTimestamp);
+    public Map<LocalDateTime, Integer> calculateDepartureGraph(List<Departure> departures) { //sum passenger Integer values corresponding to timestamp
 
-        HashMap<LocalDateTime, Integer> graphMap = new HashMap<LocalDateTime, Integer>();
-        LocalDateTime iterationTimestamp = minGraphTimestamp;
-        while (minGraphTimestamp.isBefore(maxGraphTimestamp)) {
-            graphMap.put(iterationTimestamp, 0);
-            iterationTimestamp = iterationTimestamp.plusMinutes(1);
-        }
-        return graphMap;
-    }
-
-
-    public HashMap<LocalDateTime, Integer> calculateDepartureGraph(List<Departure> departures) { //sum passenger Integer values corresponding to timestamp
-
-        HashMap<LocalDateTime, Integer> graph = getGraphMap();
+        HashMap<LocalDateTime, Integer> graph = new HashMap<>();
 
         for (Departure departure : departures
         ) {
@@ -69,14 +50,15 @@ public class CalculationService {
             // sum current map values with graph values
             singleDistribution.forEach((key, value) -> graph.merge(key, value, Integer::sum));
         }
-        return graph;
+        Map<LocalDateTime, Integer> sortedGraph = new TreeMap<>(graph);
+        return sortedGraph;
     }
 
 
     private Map<LocalDateTime, Integer> calculateSingleDeparture(Departure departure) {
 
         //use distribution adaptation method
-        HashMap<LocalDateTime, Integer> adaptedDistributionMap = adaptDistribution(LocalDateTime.parse(departure.dep_time()));
+        HashMap<LocalDateTime, Integer> adaptedDistributionMap = adaptDistribution(LocalDateTime.parse(departure.dep_time(), formatter));
         //use getPassengerAmount
         Integer passengerAmount = getPassengerAmount(departure);
 
@@ -132,21 +114,21 @@ public class CalculationService {
         return shortestDistributionMap; //distribution example taken
     }
 
-    private LocalDateTime getMaxTimestamp() { //get latest timestamp from response
+    private LocalDateTime getMaxTimestamp(List<Departure> departures) { //get latest timestamp from response
         return departures.stream()
-                .map(departure -> LocalDateTime.parse(departure.dep_time(),formatter))
+                .map(departure -> LocalDateTime.parse(departure.dep_time(), formatter))
                 .max(LocalDateTime::compareTo)
                 .orElse(null);
     }
 
-    private LocalDateTime getMinTimestamp() { //get earliest timestamp from response
+    private LocalDateTime getMinTimestamp(List<Departure> departures) { //get earliest timestamp from response
         return departures.stream()
-                .map(departure -> LocalDateTime.parse(departure.dep_time(),formatter))              // replaced from .map(Departure::dep_time)
+                .map(departure -> LocalDateTime.parse(departure.dep_time(), formatter))              // replaced from .map(Departure::dep_time)
                 .min(LocalDateTime::compareTo)
                 .orElse(null);
     }
 
-    private LocalDateTime getAdaptationDifferenceTimestamp(LocalDateTime minTimestamp) { //get earliest timestamp from response
+    private LocalDateTime getAdaptationDifferenceTimestamp(LocalDateTime minTimestamp) { //get the earliest timestamp from response
         // based on hour passengers tend to arrive with different notice
         // adaptation logic
         return minTimestamp.minusHours(2); //estimation for development process
@@ -154,10 +136,9 @@ public class CalculationService {
 
     private Integer getPassengerAmount(Departure departure) { //possible redirect to double/float
         try {
-            return aircraftCapacityMap.get(departure.aircraft_icao());
+            return aircraftCapacityMap.get(AircraftCode.valueOf(departure.aircraft_icao()));
         } catch (NullPointerException nullPointerException) {
             return 150; //default value when api provides no aircraft model
         }
     }
-
 }
