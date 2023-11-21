@@ -67,7 +67,7 @@ public class CalculationService {
                 .stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
-                        key -> key.getValue() * passengerAmount
+                        key -> key.getValue() * passengerAmount / 100
                 ));
         return dedicatedDistributionMap;
     }
@@ -135,10 +135,14 @@ public class CalculationService {
     }
 
     private Integer getPassengerAmount(Departure departure) { //possible redirect to double/float
-        try {
-            return aircraftCapacityMap.get(AircraftCode.valueOf(departure.aircraft_icao()));
-        } catch (NullPointerException nullPointerException) {
-            return 150; //default value when api provides no aircraft model
+        if (AircraftCode.contains(departure.aircraft_icao()))
+            try {
+                return aircraftCapacityMap.get(AircraftCode.valueOf(departure.aircraft_icao()));
+            } catch (NullPointerException nullPointerException) {
+                return 150; //default value when api provides no aircraft model
+            }
+        else {
+            return 150; //default value when api provides aircraft model that is not on EnumMap
         }
     }
 }

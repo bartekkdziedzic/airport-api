@@ -10,4 +10,13 @@ public enum AircraftCode {
     A20N,//112
     A320//150
     ;
+
+    public static boolean contains(String apiIcao) {
+        for (AircraftCode code : values()) {
+            if (code.name().equals(apiIcao)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
