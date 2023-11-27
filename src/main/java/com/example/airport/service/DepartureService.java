@@ -20,10 +20,10 @@ public class DepartureService {
 
     private final static String baseUrl = "https://airlabs.co/api/v9/schedules";
     private final static String accessKey = "3532cddd-d3b6-4ab7-b19c-863ce43991b3";
-    private final static String depIata = "KRK";
+   // private final static String depIata = "KRK";
     private int offset = 0; // Initialize offset to 0
 
-    public List<Departure> getDepartures() {
+    public List<Departure> getDepartures(String depIata) {
         try {
             DepartureResponse departureResponse = webClient
                     .build()

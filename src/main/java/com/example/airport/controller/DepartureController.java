@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,21 +29,21 @@ public class DepartureController {
         this.calculationService = calculationService;
     }
 
-    @RequestMapping("/fly")
-    public List<Departure> getData() {
+    @RequestMapping("/fly/{depIata}")
+    public List<Departure> getData(@PathVariable("depIata") String depIata) {
 
-        return departureService.getDepartures();
+        return departureService.getDepartures(depIata);
     }
 
-    @RequestMapping("/graph")
-    public Map<LocalDateTime, Integer> getGraph() {
-        List<Departure> departures = departureService.getDepartures();
+    @RequestMapping("/graph/{depIata}")
+    public Map<LocalDateTime, Integer> getGraph(@PathVariable("depIata") String depIata) {
+        List<Departure> departures = departureService.getDepartures(depIata);
         return calculationService.calculateDepartureGraph(departures);
     }
 
-    @GetMapping("/show")
-    public String showGraph(Model model) {
-        List<Departure> departures = departureService.getDepartures();
+    @GetMapping("/show/{depIata}")
+    public String showGraph(Model model, @PathVariable("depIata") String depIata) {
+        List<Departure> departures = departureService.getDepartures(depIata);
         Map<LocalDateTime, Integer> sortedGraph = calculationService.calculateDepartureGraph(departures);
         Map<String, Integer> stringGraph = calculationService.convertGraphToChartable(sortedGraph);
 
