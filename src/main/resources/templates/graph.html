@@ -1,0 +1,73 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="en" xmlns:th="http://www.thymeleaf.org">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta http-equiv="X-UA-Compatible" content="IE=edge">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>Departure Chart</title>-->
+
+<!--    &lt;!&ndash; Include Chart.js library &ndash;&gt;-->
+<!--    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>-->
+<!--</head>-->
+<!--<body>-->
+
+<!--<h2>Departure Chart</h2>-->
+
+<!--<div>-->
+<!--    &lt;!&ndash; Canvas for rendering the chart &ndash;&gt;-->
+<!--    <canvas th:id="departureChartCanvas"></canvas>-->
+<!--</div>-->
+
+<!--<script th:inline="javascript">-->
+<!--    /*<![CDATA[*/-->
+
+<!--    // Get chart data from the model-->
+<!--    var chartData = /*[[${chartData}]]*/ {};-->
+
+<!--    // Convert chart data to arrays for Chart.js-->
+<!--    var labels = Object.keys(chartData);-->
+<!--    var values = Object.values(chartData);-->
+
+<!--    // Get the canvas element-->
+<!--    var ctx = document.getElementById('departureChartCanvas').getContext('2d');-->
+
+<!--    // Create the chart-->
+<!--    var departureChart = new Chart(ctx, {-->
+<!--        type: 'line',-->
+<!--        data: {-->
+<!--            labels: labels,-->
+<!--            datasets: [{-->
+<!--                label: 'Passenger Count',-->
+<!--                data: values,-->
+<!--                borderColor: 'rgba(75, 192, 192, 1)',-->
+<!--                borderWidth: 1,-->
+<!--                fill: false-->
+<!--            }]-->
+<!--        },-->
+<!--        options: {-->
+<!--            scales: {-->
+<!--                x: {-->
+<!--                    type: 'time',-->
+<!--                    time: {-->
+<!--                        unit: 'day'-->
+<!--                    },-->
+<!--                    title: {-->
+<!--                        display: true,-->
+<!--                        text: 'Time'-->
+<!--                    }-->
+<!--                },-->
+<!--                y: {-->
+<!--                    title: {-->
+<!--                        display: true,-->
+<!--                        text: 'Passenger Count'-->
+<!--                    }-->
+<!--                }-->
+<!--            }-->
+<!--        }-->
+<!--    });-->
+
+<!--    /*]]>*/-->
+<!--</script>-->
+
+<!--</body>-->
+<!--</html>-->

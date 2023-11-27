@@ -2,6 +2,7 @@ package com.example.airport.service;
 
 import com.example.airport.enums.AircraftCode;
 import com.example.airport.model.Departure;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import lombok.Getter;
 import org.springframework.stereotype.Service;
 
@@ -75,10 +76,8 @@ public class CalculationService {
 
     private HashMap<LocalDateTime, Integer> adaptDistribution(LocalDateTime time) {
 
-        // longest boundary distribution
+        // longest boundary distribution // 22:00 - 04:00 distribution
         HashMap<LocalDateTime, Integer> longestDistributionMap = new HashMap<LocalDateTime, Integer>();
-        longestDistributionMap.put(time, 0);
-        longestDistributionMap.put(time.minusMinutes(15), 0);
         longestDistributionMap.put(time.minusMinutes(30), 2);
         longestDistributionMap.put(time.minusMinutes(45), 8);
         longestDistributionMap.put(time.minusMinutes(60), 17);
@@ -92,12 +91,10 @@ public class CalculationService {
         longestDistributionMap.put(time.minusMinutes(180), 5);
         longestDistributionMap.put(time.minusMinutes(195), 5);
         longestDistributionMap.put(time.minusMinutes(210), 2);
-        longestDistributionMap.put(time.minusMinutes(225), 1); // all values divide by 100
+        longestDistributionMap.put(time.minusMinutes(225), 1);
 
-        // shortest boundary distribution
+        // shortest boundary distribution // 04:00 - 06:00 distribution
         HashMap<LocalDateTime, Integer> shortestDistributionMap = new HashMap<LocalDateTime, Integer>();
-        shortestDistributionMap.put(time, 0);
-        shortestDistributionMap.put(time.minusMinutes(15), 0);
         shortestDistributionMap.put(time.minusMinutes(30), 2);
         shortestDistributionMap.put(time.minusMinutes(45), 10);
         shortestDistributionMap.put(time.minusMinutes(60), 17);
@@ -105,13 +102,31 @@ public class CalculationService {
         shortestDistributionMap.put(time.minusMinutes(90), 26);
         shortestDistributionMap.put(time.minusMinutes(105), 10);
         shortestDistributionMap.put(time.minusMinutes(120), 4);
-        shortestDistributionMap.put(time.minusMinutes(135), 1); // all values divide by 100
+        shortestDistributionMap.put(time.minusMinutes(135), 1);
+        shortestDistributionMap.put(time.minusMinutes(150), 0);
+        shortestDistributionMap.put(time.minusMinutes(165), 0);
+        shortestDistributionMap.put(time.minusMinutes(180), 0);
+        shortestDistributionMap.put(time.minusMinutes(195), 0);
+        shortestDistributionMap.put(time.minusMinutes(210), 0);
+        shortestDistributionMap.put(time.minusMinutes(225), 0);
 
-
-        //define distribution adaptation method
-
-
-        return shortestDistributionMap; //distribution example taken
+        //define conditions for boundary distributions
+        if (time.getHour() >= 4 && time.getHour() <= 6) {
+            return shortestDistributionMap;
+        } else if (time.getHour() > 21 || time.getHour() < 5) {
+            return longestDistributionMap;
+        } else { // adaptation function
+            int adaptationOffset = time.getHour() - 6;
+            HashMap<LocalDateTime, Integer> result = new HashMap<>();
+            Double weightFactor = (double) adaptationOffset / 16;
+            for (LocalDateTime key : shortestDistributionMap.keySet()
+            ) {
+                // multiply each distribution map by
+                result.put(key, (int) (shortestDistributionMap.get(key) * weightFactor
+                        + longestDistributionMap.get(key) * (1 - weightFactor)));
+            }
+            return result;
+        }
     }
 
     private LocalDateTime getMaxTimestamp(List<Departure> departures) { //get latest timestamp from response
@@ -145,4 +160,13 @@ public class CalculationService {
             return 150; //default value when api provides aircraft model that is not on EnumMap
         }
     }
+
+    public Map<String,Integer> convertGraphToChartable(Map<LocalDateTime,Integer> graph){
+        return graph.entrySet().stream()
+                .collect(Collectors.toMap(
+                        entry -> entry.getKey().toString(),
+                        Map.Entry::getValue
+                ));
+    }
+
 }
