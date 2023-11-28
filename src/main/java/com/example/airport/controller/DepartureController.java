@@ -4,12 +4,14 @@ import com.example.airport.model.Departure;
 import com.example.airport.service.CalculationService;
 import com.example.airport.service.DepartureService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,8 +33,12 @@ public class DepartureController {
 
     @RequestMapping("/fly/{depIata}")
     public List<Departure> getData(@PathVariable("depIata") String depIata) {
+        List<Departure> departures = departureService.getDepartures(depIata);
 
-        return departureService.getDepartures(depIata);
+        if (departures == null || departures.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Departures not found");
+        }
+        return departures;
     }
 
     @RequestMapping("/graph/{depIata}")

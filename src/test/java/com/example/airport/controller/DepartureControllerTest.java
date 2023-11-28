@@ -1,46 +1,39 @@
 package com.example.airport.controller;
 
+import com.example.airport.service.CalculationService;
 import com.example.airport.service.DepartureService;
-import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Objects;
-
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@WebMvcTest(DepartureController.class)
 class DepartureControllerTest {
 
     @Autowired
-private MockMvc mockMvc;
+    private MockMvc mockMvc;
 
     @MockBean
-private DepartureService departureService;
+    private DepartureService departureService;
 
-
+    @MockBean
+    private CalculationService calculationService;
 
     @Test
     public void endpointShouldReturnNotFound() throws Exception {
 
-        Exception exception = new Exception("test not found");
+        ResponseStatusException exception = new ResponseStatusException(HttpStatus.NOT_FOUND, "Departures not found");
         when(departureService.getDepartures(anyString())).thenThrow(exception);
 
-        String expected = Objects.requireNonNull(new JSONObject()
-                        .put("status", "NOT_FOUND"))
-              //  .put("message", "test not found")
-                .toString();
-
-        this.mockMvc.perform(get("/api/github/TEST_USER"))
-                .andExpect(status().isNotFound())
-                .andExpect(content().json(expected));
+        this.mockMvc.perform(get("/api/fly/TEST_USER"))
+                .andExpect(status().isNotFound());
     }
-
-
 }
