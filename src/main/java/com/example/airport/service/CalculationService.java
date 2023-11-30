@@ -2,7 +2,6 @@ package com.example.airport.service;
 
 import com.example.airport.enums.AircraftCode;
 import com.example.airport.model.Departure;
-import io.swagger.v3.oas.models.security.SecurityScheme;
 import lombok.Getter;
 import org.springframework.stereotype.Service;
 
@@ -129,6 +128,28 @@ public class CalculationService {
         }
     }
 
+//
+
+    private Integer getPassengerAmount(Departure departure) { //possible redirect to double/float
+        if (AircraftCode.contains(departure.aircraft_icao()))
+            try {
+                return aircraftCapacityMap.get(AircraftCode.valueOf(departure.aircraft_icao()));
+            } catch (NullPointerException nullPointerException) {
+                return 150; //default value when api provides no aircraft model
+            }
+        else {
+            return 150; //default value when api provides aircraft model that is not on EnumMap
+        }
+    }
+
+    public Map<String, Integer> convertGraphToChartable(Map<LocalDateTime, Integer> graph) {
+        return graph.entrySet().stream()
+                .collect(Collectors.toMap(
+                        entry -> entry.getKey().toString(),
+                        Map.Entry::getValue
+                ));
+    }
+
     private LocalDateTime getMaxTimestamp(List<Departure> departures) { //get latest timestamp from response
         return departures.stream()
                 .map(departure -> LocalDateTime.parse(departure.dep_time(), formatter))
@@ -148,25 +169,4 @@ public class CalculationService {
         // adaptation logic
         return minTimestamp.minusHours(2); //estimation for development process
     }
-
-    private Integer getPassengerAmount(Departure departure) { //possible redirect to double/float
-        if (AircraftCode.contains(departure.aircraft_icao()))
-            try {
-                return aircraftCapacityMap.get(AircraftCode.valueOf(departure.aircraft_icao()));
-            } catch (NullPointerException nullPointerException) {
-                return 150; //default value when api provides no aircraft model
-            }
-        else {
-            return 150; //default value when api provides aircraft model that is not on EnumMap
-        }
-    }
-
-    public Map<String,Integer> convertGraphToChartable(Map<LocalDateTime,Integer> graph){
-        return graph.entrySet().stream()
-                .collect(Collectors.toMap(
-                        entry -> entry.getKey().toString(),
-                        Map.Entry::getValue
-                ));
-    }
-
 }
