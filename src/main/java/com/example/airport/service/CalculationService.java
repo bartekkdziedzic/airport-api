@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 @Getter
 public class CalculationService {
 
-    private DepartureService departureService;
+    private final DepartureService departureService;
     private final EnumMap<AircraftCode, Integer> aircraftCapacityMap;
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
@@ -26,7 +26,7 @@ public class CalculationService {
 
     public final EnumMap<AircraftCode, Integer> getAircraftCapacityMap() {
 
-        EnumMap<AircraftCode, Integer> enumMap = new EnumMap<AircraftCode, Integer>(AircraftCode.class);
+        EnumMap<AircraftCode, Integer> enumMap = new EnumMap<>(AircraftCode.class);
         enumMap.put(AircraftCode.A20N, 160);
         enumMap.put(AircraftCode.A320, 150);
         enumMap.put(AircraftCode.B738, 165);
@@ -76,7 +76,7 @@ public class CalculationService {
     private HashMap<LocalDateTime, Integer> adaptDistribution(LocalDateTime time) {
 
         // longest boundary distribution // 22:00 - 04:00 distribution
-        HashMap<LocalDateTime, Integer> longestDistributionMap = new HashMap<LocalDateTime, Integer>();
+        HashMap<LocalDateTime, Integer> longestDistributionMap = new HashMap<>();
         longestDistributionMap.put(time.minusMinutes(30), 2);
         longestDistributionMap.put(time.minusMinutes(45), 8);
         longestDistributionMap.put(time.minusMinutes(60), 17);
@@ -93,7 +93,7 @@ public class CalculationService {
         longestDistributionMap.put(time.minusMinutes(225), 1);
 
         // shortest boundary distribution // 04:00 - 06:00 distribution
-        HashMap<LocalDateTime, Integer> shortestDistributionMap = new HashMap<LocalDateTime, Integer>();
+        HashMap<LocalDateTime, Integer> shortestDistributionMap = new HashMap<>();
         shortestDistributionMap.put(time.minusMinutes(30), 2);
         shortestDistributionMap.put(time.minusMinutes(45), 10);
         shortestDistributionMap.put(time.minusMinutes(60), 17);
@@ -128,8 +128,6 @@ public class CalculationService {
         }
     }
 
-//
-
     private Integer getPassengerAmount(Departure departure) { //possible redirect to double/float
         if (AircraftCode.contains(departure.aircraft_icao()))
             try {
@@ -141,32 +139,5 @@ public class CalculationService {
             return 150; //default value when api provides aircraft model that is not on EnumMap
         }
     }
-
-    public Map<String, Integer> convertGraphToChartable(Map<LocalDateTime, Integer> graph) {
-        return graph.entrySet().stream()
-                .collect(Collectors.toMap(
-                        entry -> entry.getKey().toString(),
-                        Map.Entry::getValue
-                ));
-    }
-
-    private LocalDateTime getMaxTimestamp(List<Departure> departures) { //get latest timestamp from response
-        return departures.stream()
-                .map(departure -> LocalDateTime.parse(departure.dep_time(), formatter))
-                .max(LocalDateTime::compareTo)
-                .orElse(null);
-    }
-
-    private LocalDateTime getMinTimestamp(List<Departure> departures) { //get earliest timestamp from response
-        return departures.stream()
-                .map(departure -> LocalDateTime.parse(departure.dep_time(), formatter))              // replaced from .map(Departure::dep_time)
-                .min(LocalDateTime::compareTo)
-                .orElse(null);
-    }
-
-    private LocalDateTime getAdaptationDifferenceTimestamp(LocalDateTime minTimestamp) { //get the earliest timestamp from response
-        // based on hour passengers tend to arrive with different notice
-        // adaptation logic
-        return minTimestamp.minusHours(2); //estimation for development process
-    }
 }
+
