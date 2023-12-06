@@ -1,4 +1,4 @@
-package com.example.airport.service;
+package com.example.airport.httpservice;
 
 import com.example.airport.model.Departure;
 import com.example.airport.model.DepartureResponse;
@@ -41,10 +41,10 @@ public class DepartureService {
                     })
                     .blockOptional()
                     .orElseThrow(() -> new RuntimeException("body is null"));
-            List<Departure> departures = departureResponse.getResponse();
+            List<Departure> departures = departureResponse.response();
 
             // Check if there is more data available
-            boolean hasMore = departureResponse.getRequest().has_more();
+            boolean hasMore = departureResponse.request().has_more();
             if (hasMore) {
                 offset += departures.size();
             }

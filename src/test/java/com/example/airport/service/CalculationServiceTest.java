@@ -1,6 +1,7 @@
 package com.example.airport.service;
 
 import com.example.airport.enums.AircraftCode;
+import com.example.airport.httpservice.DepartureService;
 import com.example.airport.model.Departure;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

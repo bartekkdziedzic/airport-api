@@ -8,7 +8,8 @@ public enum AircraftCode {
     E195,//112
     DH8D,//39
     A20N,//112
-    A320//150
+    A320,//150
+    UNKNOWN//150 instead of null
     ;
 
     public static boolean contains(String apiIcao) {
