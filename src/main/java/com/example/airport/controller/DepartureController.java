@@ -1,9 +1,10 @@
 package com.example.airport.controller;
 
+import com.example.airport.httpservice.DepartureService;
 import com.example.airport.model.Departure;
 import com.example.airport.service.CalculationService;
-import com.example.airport.service.DepartureService;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,7 +26,7 @@ public class DepartureController {
         this.calculationService = calculationService;
     }
 
-    @RequestMapping("/fly/{depIata}")
+    @GetMapping("/fly/{depIata}")
     public List<Departure> getData(@PathVariable("depIata") String depIata) {
         List<Departure> departures = departureService.getDepartures(depIata);
 
@@ -35,7 +36,7 @@ public class DepartureController {
         return departures;
     }
 
-    @RequestMapping("/graph/{depIata}")
+    @GetMapping("/graph/{depIata}")
     public Map<LocalDateTime, Integer> getGraph(@PathVariable("depIata") String depIata) {
         List<Departure> departures = departureService.getDepartures(depIata);
         return calculationService.calculateDepartureGraph(departures);

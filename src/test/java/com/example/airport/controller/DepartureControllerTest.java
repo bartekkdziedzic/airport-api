@@ -2,7 +2,7 @@ package com.example.airport.controller;
 
 import com.example.airport.model.Departure;
 import com.example.airport.service.CalculationService;
-import com.example.airport.service.DepartureService;
+import com.example.airport.httpservice.DepartureService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
