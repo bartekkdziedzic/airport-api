@@ -1,5 +1,6 @@
 package com.example.airport.httpservice;
 
+import com.example.airport.dao.DepartureDao;
 import com.example.airport.model.Departure;
 import com.example.airport.model.DepartureResponse;
 import org.springframework.core.ParameterizedTypeReference;
@@ -7,6 +8,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 
 @Service
@@ -21,6 +26,7 @@ public class DepartureService {
     private final static String baseUrl = "https://airlabs.co/api/v9/schedules";
     private final static String accessKey = "3532cddd-d3b6-4ab7-b19c-863ce43991b3";
     private int offset = 0; // Initialize offset to 0
+
 
     public List<Departure> getDepartures(String depIata) {
         try {
@@ -48,7 +54,9 @@ public class DepartureService {
             if (hasMore) {
                 offset += departures.size();
             }
-
+         //   saveDeparturesToDatabase(departures);
+            DepartureDao departureDao = new DepartureDao();
+            departureDao.saveDepartures(departures);
             return departures;
         } catch (Exception e) {
             throw new RuntimeException("exception caught", e);
