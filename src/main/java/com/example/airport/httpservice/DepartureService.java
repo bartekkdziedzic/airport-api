@@ -1,6 +1,6 @@
 package com.example.airport.httpservice;
 
-import com.example.airport.dao.DepartureDao;
+import com.example.airport.dao.PostgresDao;
 import com.example.airport.model.Departure;
 import com.example.airport.model.DepartureResponse;
 import org.springframework.core.ParameterizedTypeReference;
@@ -8,16 +8,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.List;
 
 @Service
 public class DepartureService {
 
-    private WebClient.Builder webClient;
+    private final WebClient.Builder webClient;
 
     public DepartureService(WebClient.Builder webClient) {
         this.webClient = webClient.baseUrl(baseUrl);
@@ -54,9 +50,9 @@ public class DepartureService {
             if (hasMore) {
                 offset += departures.size();
             }
-         //   saveDeparturesToDatabase(departures);
-            DepartureDao departureDao = new DepartureDao();
-            departureDao.saveDepartures(departures);
+            //   saveDeparturesToDatabase(departures);
+            PostgresDao postgresDao = new PostgresDao();
+            postgresDao.saveDepartures(departures);
             return departures;
         } catch (Exception e) {
             throw new RuntimeException("exception caught", e);
