@@ -1,5 +1,6 @@
 package com.example.airport.controller;
 
+import com.example.airport.dao.PostgresDao;
 import com.example.airport.httpservice.DepartureService;
 import com.example.airport.model.Departure;
 import com.example.airport.service.CalculationService;
@@ -20,10 +21,12 @@ public class DepartureController {
 
     private final DepartureService departureService;
     private final CalculationService calculationService;
+    private final PostgresDao postgresDao;
 
-    public DepartureController(DepartureService departureService, CalculationService calculationService) {
+    public DepartureController(DepartureService departureService, CalculationService calculationService, PostgresDao postgresDao) {
         this.departureService = departureService;
         this.calculationService = calculationService;
+        this.postgresDao = postgresDao;
     }
 
     @GetMapping("/fly/{depIata}")
@@ -39,7 +42,9 @@ public class DepartureController {
     @GetMapping("/graph/{depIata}")
     public Map<LocalDateTime, Integer> getGraph(@PathVariable("depIata") String depIata) {
         List<Departure> departures = departureService.getDepartures(depIata);
-        return calculationService.calculateDepartureGraph(departures);
+        Map<LocalDateTime, Integer> distribution = calculationService.calculateDepartureGraph(departures);
+        postgresDao.saveDistribution(depIata, distribution);
+        return distribution;
     }
 
 }
