@@ -2,6 +2,7 @@ package com.example.airport.service;
 
 import com.example.airport.enums.AircraftCode;
 import com.example.airport.model.Departure;
+import com.example.airport.repository.DistributionRepository;
 import lombok.Getter;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +20,8 @@ public class DistributionService {
     private final EnumMap<AircraftCode, Integer> aircraftCapacityMap;
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-    public DistributionService() {
+
+    public DistributionService(DistributionRepository distributionRepository) {
         this.aircraftCapacityMap = getAircraftCapacityMap();
     }
 
@@ -139,9 +141,9 @@ public class DistributionService {
     }
 
     public Integer getPassengerAmount(Departure departure) { //possible redirect to double/float
-        if (AircraftCode.contains(departure.aircraft_icao()))
+        if (AircraftCode.contains(departure.getAircraft_icao()))
             try {
-                return (int) (aircraftCapacityMap.get(AircraftCode.valueOf(departure.aircraft_icao())) * 0.9);
+                return (int) (aircraftCapacityMap.get(AircraftCode.valueOf(departure.getAircraft_icao())) * 0.9);
             } catch (NullPointerException nullPointerException) {
                 return (int) (aircraftCapacityMap.get(AircraftCode.UNKNOWN) * 0.9); //default value when api provides no aircraft model
             }

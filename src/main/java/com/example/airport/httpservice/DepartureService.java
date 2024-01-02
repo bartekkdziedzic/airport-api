@@ -1,8 +1,9 @@
 package com.example.airport.httpservice;
 
-import com.example.airport.dao.PostgresDao;
+
 import com.example.airport.model.Departure;
 import com.example.airport.model.DepartureResponse;
+import com.example.airport.service.DatabaseService;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -14,9 +15,11 @@ import java.util.List;
 public class DepartureService {
 
     private final WebClient.Builder webClient;
+    private final DatabaseService databaseService;
 
-    public DepartureService(WebClient.Builder webClient) {
+    public DepartureService(WebClient.Builder webClient, DatabaseService databaseService) {
         this.webClient = webClient.baseUrl(baseUrl);
+        this.databaseService = databaseService;
     }
 
     private final static String baseUrl = "https://airlabs.co/api/v9/schedules";
@@ -50,9 +53,8 @@ public class DepartureService {
             if (hasMore) {
                 offset += departures.size();
             }
-            //   saveDeparturesToDatabase(departures);
-            PostgresDao postgresDao = new PostgresDao();
-            postgresDao.saveDepartures(departures);
+            // saveDeparturesToDatabase(departures);
+            databaseService.saveDepartures(departures);
             return departures;
         } catch (Exception e) {
             throw new RuntimeException("exception caught", e);
