@@ -1,5 +1,6 @@
 package com.example.airport.controller;
 
+
 import com.example.airport.model.Departure;
 import com.example.airport.service.CalculationService;
 import com.example.airport.httpservice.DepartureService;
@@ -31,6 +32,7 @@ class DepartureControllerTest {
 
     @MockBean
     private CalculationService calculationService;
+
 
     @Test
     public void endpointShouldReturnNotFound() throws Exception {

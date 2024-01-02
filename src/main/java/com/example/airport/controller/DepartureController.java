@@ -1,9 +1,10 @@
 package com.example.airport.controller;
 
-import com.example.airport.dao.PostgresDao;
 import com.example.airport.httpservice.DepartureService;
 import com.example.airport.model.Departure;
 import com.example.airport.service.CalculationService;
+import com.example.airport.service.DatabaseService;
+import com.example.airport.service.DistributionService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -21,12 +22,12 @@ public class DepartureController {
 
     private final DepartureService departureService;
     private final CalculationService calculationService;
-    private final PostgresDao postgresDao;
+    private final DatabaseService databaseService;
 
-    public DepartureController(DepartureService departureService, CalculationService calculationService, PostgresDao postgresDao) {
+    public DepartureController(DepartureService departureService, CalculationService calculationService, DistributionService distributionService, DatabaseService databaseService) {
         this.departureService = departureService;
         this.calculationService = calculationService;
-        this.postgresDao = postgresDao;
+        this.databaseService = databaseService;
     }
 
     @GetMapping("/fly/{depIata}")
@@ -43,7 +44,7 @@ public class DepartureController {
     public Map<LocalDateTime, Integer> getGraph(@PathVariable("depIata") String depIata) {
         List<Departure> departures = departureService.getDepartures(depIata);
         Map<LocalDateTime, Integer> distribution = calculationService.calculateDepartureGraph(departures);
-        postgresDao.saveDistribution(depIata, distribution);
+        databaseService.saveDistribution(depIata, distribution);
         return distribution;
     }
 

@@ -1,9 +1,9 @@
 FROM openjdk:11-jre-slim
 
-WORKDIR /app
+COPY target/*.jar /app/testapp.jar
 
-COPY target/classes/com/example/airport.jar app.jar
+WORKDIR /app
 
 EXPOSE 8081
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "testapp.jar"]

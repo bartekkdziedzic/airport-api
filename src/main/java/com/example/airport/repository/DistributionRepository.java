@@ -1,9 +1,9 @@
 package com.example.airport.repository;
 
-import com.example.airport.model.Departure;
+import com.example.airport.model.Distribution;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface DepartureRepository extends JpaRepository<Departure, Long> {
+public interface DistributionRepository extends JpaRepository<Distribution, Long> {
 }

@@ -1,7 +1,6 @@
 package com.example.airport.service;
 
 import com.example.airport.enums.AircraftCode;
-import com.example.airport.httpservice.DepartureService;
 import com.example.airport.model.Departure;
 import lombok.Getter;
 import org.springframework.stereotype.Service;
@@ -15,13 +14,11 @@ import java.util.stream.Collectors;
 @Getter
 public class CalculationService {
 
-    private final DepartureService departureService;
     private final DistributionService distributionService;
     private final EnumMap<AircraftCode, Integer> aircraftCapacityMap;
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-    public CalculationService(DepartureService departureService, DistributionService distributionService) {
-        this.departureService = departureService;
+    public CalculationService(DistributionService distributionService) {
         this.distributionService = distributionService;
         this.aircraftCapacityMap = getAircraftCapacityMap();
     }
@@ -45,7 +42,7 @@ public class CalculationService {
     public Map<LocalDateTime, Integer> calculateSingleDeparture(Departure departure) {
 
         //use distribution adaptation method
-        Map<LocalDateTime, Integer> adaptedDistributionMap = distributionService.adaptDistribution(LocalDateTime.parse(departure.dep_time(), formatter));
+        Map<LocalDateTime, Integer> adaptedDistributionMap = distributionService.adaptDistribution(LocalDateTime.parse(departure.getDep_time(), formatter));
         //use getPassengerAmount
         Integer passengerAmount = distributionService.getPassengerAmount(departure);
 
