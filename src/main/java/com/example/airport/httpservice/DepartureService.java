@@ -3,12 +3,14 @@ package com.example.airport.httpservice;
 
 import com.example.airport.model.Departure;
 import com.example.airport.model.DepartureResponse;
+import com.example.airport.model.flightradar.Schedule;
 import com.example.airport.service.DatabaseService;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -18,7 +20,7 @@ public class DepartureService {
     private final DatabaseService databaseService;
 
     public DepartureService(WebClient.Builder webClient, DatabaseService databaseService) {
-        this.webClient = webClient.baseUrl(baseUrl);
+        this.webClient = webClient;
         this.databaseService = databaseService;
     }
 
@@ -30,6 +32,7 @@ public class DepartureService {
     public List<Departure> getDepartures(String depIata) {
         try {
             DepartureResponse departureResponse = webClient
+                    .baseUrl(baseUrl)
                     .build()
                     .get()
                     .uri(uriBuilder -> uriBuilder
@@ -60,5 +63,44 @@ public class DepartureService {
             throw new RuntimeException("exception caught", e);
         }
     }
+
+    private final static String baseFRUrl = "https://api.flightradar24.com/common/v1/airport.json";
+
+    public Schedule getFlightRadarDepartures(String airportCode) {
+        try {
+            long timestamp = Instant.now().getEpochSecond();
+
+            Schedule schedule = webClient
+                    .baseUrl(baseFRUrl)
+                    .build()
+                    .get()
+                    .uri(uriBuilder -> uriBuilder
+                            .queryParam("code", airportCode)
+                            .queryParam("plugin[]", "")
+                            .queryParam("plugin-setting[schedule][mode]", "departures")
+                            .queryParam("plugin-setting[schedule][timestamp]", timestamp)
+                            .queryParam("page", 1)
+                            .queryParam("limit", 100)
+                            .queryParam("fleet", "")
+                            .queryParam("token", "")
+                            .build())
+                    .retrieve()
+                    .onStatus(
+                            status -> status.is4xxClientError() || status.is5xxServerError(),
+                            response -> Mono.error(new Exception("wrong query"))
+                    )
+                    .bodyToMono(Schedule.class)
+                    .blockOptional()
+                    .orElseThrow(() -> new RuntimeException("body is null"));
+
+            // Save departures to the database
+
+
+            return schedule;
+        } catch (Exception e) {
+            throw new RuntimeException("exception caught", e);
+        }
+    }
+
 
 }
