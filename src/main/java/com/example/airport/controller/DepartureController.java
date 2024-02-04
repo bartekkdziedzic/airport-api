@@ -1,5 +1,6 @@
 package com.example.airport.controller;
 
+
 import com.example.airport.httpservice.DepartureService;
 import com.example.airport.model.Departure;
 import com.example.airport.service.CalculationService;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +25,7 @@ public class DepartureController {
     private final DepartureService departureService;
     private final CalculationService calculationService;
     private final DatabaseService databaseService;
+
 
     public DepartureController(DepartureService departureService, CalculationService calculationService, DistributionService distributionService, DatabaseService databaseService) {
         this.departureService = departureService;
@@ -47,5 +50,8 @@ public class DepartureController {
         databaseService.saveDistribution(depIata, distribution);
         return distribution;
     }
+
+
+
 
 }
