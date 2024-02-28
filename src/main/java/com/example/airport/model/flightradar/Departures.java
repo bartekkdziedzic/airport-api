@@ -1,6 +1,14 @@
 package com.example.airport.model.flightradar;
 
-@lombok.Data
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+@Data
+@NoArgsConstructor
 public class Departures {
-    private Data data;
+
+    private List<FlightField> data;
+
 }

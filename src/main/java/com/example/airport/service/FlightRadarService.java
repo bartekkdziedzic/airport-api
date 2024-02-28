@@ -1,8 +1,8 @@
 package com.example.airport.service;
 
-import com.example.airport.model.flightradar.Flight;
+import com.example.airport.model.flightradar.FlightField;
 import com.example.airport.model.flightradar.FlightRadarDeparture;
-import com.example.airport.model.flightradar.Schedule;
+import com.example.airport.model.flightradar.ResponseFR;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -12,21 +12,23 @@ import java.util.List;
 public class FlightRadarService {
 
 
-    List<FlightRadarDeparture> getFlightRadarDepartureList(Schedule schedule) {
+    public List<FlightRadarDeparture> getFlightRadarDepartureList(ResponseFR pluginData, String arrIata) {
         List<FlightRadarDeparture> flightRadarDepartureList = new ArrayList<>();
-        List<Flight> flights = schedule.getDepartures().getData().getFlightList();
+        List<FlightField> flights = pluginData.getResult().getResponse().getAirport().getPluginData().getSchedule().getDepartures().getData();
 
-        for (Flight flight : flights
+        for (FlightField flight : flights
         ) {
             FlightRadarDeparture flightRadarDeparture = new FlightRadarDeparture(
-                    flight.getAirport().getDestination().getCode().getIata(),
-                    flight.getTime().getScheduled().getDeparture(),
-                    flight.getAircraft().getModel().getCode()
+                    arrIata,
+                    flight.getFlight().getAirport().getDestination().getCode().getIata(),
+                    flight.getFlight().getTime().getScheduled().getDeparture(),
+                    flight.getFlight().getAircraft().getModel().getCode()
             );
             flightRadarDepartureList.add(flightRadarDeparture);
 
         }
         return flightRadarDepartureList;
     }
+
 
 }
