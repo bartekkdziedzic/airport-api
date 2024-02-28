@@ -9,6 +9,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class FlightRadarDeparture {
 
+    private String arrIata;
     private String destinationIataCode;
     private long scheduledDepartureTimestamp;
     private String aircraftModelCode;
