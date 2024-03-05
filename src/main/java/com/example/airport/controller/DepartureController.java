@@ -56,12 +56,6 @@ public class DepartureController {
         return distribution;
     }
 
-//    @GetMapping("/fr/{depIata}")
-//    public List<FlightRadarDeparture> getSchedule(@PathVariable("depIata") String depIata) {
-//        ResponseFR responseFR = departureService.getFlightRadarDepartures(depIata);
-//        List<FlightRadarDeparture> flightRadarDepartureList = flightRadarService.getFlightRadarDepartureList(responseFR, depIata);
-//        return flightRadarDepartureList;
-//    }
 
     @GetMapping("/fr/{depIata}")
     public List<Departure> getSchedule(@PathVariable("depIata") String depIata) {
@@ -69,8 +63,21 @@ public class DepartureController {
         List<FlightRadarDeparture> flightRadarDepartureList = flightRadarService.getFlightRadarDepartureList(responseFR, depIata);
 
         FlightRadarResponseToDepartureMapper flightRadarResponseToDepartureMapper = new FlightRadarResponseToDepartureMapper();
-        List<Departure> departures = flightRadarResponseToDepartureMapper.mapFlightRadarResponseToDepartureList(flightRadarDepartureList,depIata);
+        List<Departure> departures = flightRadarResponseToDepartureMapper.mapFlightRadarResponseToDepartureList(flightRadarDepartureList, depIata);
         return departures;
+    }
+
+    @GetMapping("/frgraph/{depIata}")
+    public Map<LocalDateTime, Integer> getFrGraph(@PathVariable("depIata") String depIata) {
+        ResponseFR responseFR = departureService.getFlightRadarDepartures(depIata);
+        List<FlightRadarDeparture> flightRadarDepartureList = flightRadarService.getFlightRadarDepartureList(responseFR, depIata);
+
+        FlightRadarResponseToDepartureMapper flightRadarResponseToDepartureMapper = new FlightRadarResponseToDepartureMapper();
+        List<Departure> departures = flightRadarResponseToDepartureMapper.mapFlightRadarResponseToDepartureList(flightRadarDepartureList, depIata);
+
+        Map<LocalDateTime, Integer> distribution = calculationService.calculateDepartureGraph(departures);
+        databaseService.saveDistribution(depIata, distribution);
+        return distribution;
     }
 
 
