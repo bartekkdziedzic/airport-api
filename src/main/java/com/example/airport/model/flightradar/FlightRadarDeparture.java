@@ -15,4 +15,3 @@ public class FlightRadarDeparture {
     private String aircraftModelCode;
 
 }
-// need mapper for common Departure class

@@ -13,4 +13,12 @@ public class GraphController {
         model.addAttribute("city", depIata);
         return "graph";
     }
+
+    @GetMapping("/frgraph/{depIata}")
+    public String getFrGraph(@PathVariable("depIata") String depIata, Model model) {
+        model.addAttribute("city", depIata);
+        return "frgraph";
+    }
+
+
 }
