@@ -9,10 +9,13 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class FlightRadarResponseToDepartureMapper {
 
-    public List<Departure> mapFlightRadarResponseToDepartureList(List<FlightRadarDeparture> flightRadarDepartureList, String arrIata) {
+    public static List<Departure> mapFlightRadarResponseToDepartureList(List<FlightRadarDeparture> flightRadarDepartureList, String arrIata) {
+
+        Objects.requireNonNull(flightRadarDepartureList,arrIata);
 
         List<Departure> departureList = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
