@@ -62,8 +62,7 @@ public class DepartureController {
         ResponseFR responseFR = departureService.getFlightRadarDepartures(depIata);
         List<FlightRadarDeparture> flightRadarDepartureList = flightRadarService.getFlightRadarDepartureList(responseFR, depIata);
 
-        FlightRadarResponseToDepartureMapper flightRadarResponseToDepartureMapper = new FlightRadarResponseToDepartureMapper();
-        List<Departure> departures = flightRadarResponseToDepartureMapper.mapFlightRadarResponseToDepartureList(flightRadarDepartureList, depIata);
+        List<Departure> departures = FlightRadarResponseToDepartureMapper.mapFlightRadarResponseToDepartureList(flightRadarDepartureList, depIata);
         return departures;
     }
 
@@ -72,8 +71,7 @@ public class DepartureController {
         ResponseFR responseFR = departureService.getFlightRadarDepartures(depIata);
         List<FlightRadarDeparture> flightRadarDepartureList = flightRadarService.getFlightRadarDepartureList(responseFR, depIata);
 
-        FlightRadarResponseToDepartureMapper flightRadarResponseToDepartureMapper = new FlightRadarResponseToDepartureMapper();
-        List<Departure> departures = flightRadarResponseToDepartureMapper.mapFlightRadarResponseToDepartureList(flightRadarDepartureList, depIata);
+        List<Departure> departures = FlightRadarResponseToDepartureMapper.mapFlightRadarResponseToDepartureList(flightRadarDepartureList, depIata);
 
         Map<LocalDateTime, Integer> distribution = calculationService.calculateDepartureGraph(departures);
         databaseService.saveDistribution(depIata, distribution);
