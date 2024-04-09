@@ -5,6 +5,14 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+<div>
+    <label for="depIataInput">Enter Departure IATA Code:</label>
+    <input type="text" id="depIataInput" />
+    <button onclick="fetchGraph()">Generate Graph</button>
+</div>
+<div>
+    <button onclick="navigateToFrgraph()">Go to FlightRadar Graph View</button>
+</div>
 <canvas id="departureChart"></canvas>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
 <script th:inline="javascript">
@@ -13,35 +21,44 @@
     /*]]>*/
 </script>
 <script>
-    // var city = document.getElementById('departureChart').getAttribute('data-city');
-    fetch('/api/graph/' + city)
-        .then(response => response.json())
-        .then(data => {
-            const ctx = document.getElementById('departureChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: Object.keys(data),
-                    datasets: [{
-                        label: 'People arriving',
-                        data: Object.values(data),
-                        fill: false,
-                        borderColor: 'rgb(75, 192, 192)',
-                        tension: 0.1
-                    }]
-                },
-                options: {
-                    scales: {
-                        x: {
-                            type: 'time',
-                            time: {
-                                unit: 'day'
+    function fetchGraph() {
+        var city = document.getElementById('depIataInput').value;
+        fetch('/api/graph/' + city)
+            .then(response => response.json())
+            .then(data => {
+                const ctx = document.getElementById('departureChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: Object.keys(data),
+                        datasets: [{
+                            label: 'People arriving',
+                            data: Object.values(data),
+                            fill: false,
+                            borderColor: 'rgb(75, 192, 192)',
+                            tension: 0.1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            x: {
+                                type: 'time',
+                                time: {
+                                    unit: 'day'
+                                }
                             }
                         }
                     }
-                }
+                });
             });
-        });
+    }
+
+    function navigateToFrgraph() {
+        window.location.href = '/frgraph';
+    }
+
+    // Initial fetch on page load (optional)
+    // fetchGraph();
 </script>
 </body>
 </html>
