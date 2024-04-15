@@ -7,7 +7,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,22 +27,22 @@ public class CalculationService {
     }
 
 
-    public Map<LocalDateTime, Integer> calculateDepartureGraph(List<Departure> departures) { //sum passenger Integer values corresponding to timestamp
+    public Map<LocalDateTime, Integer> calculateDeparturesGraph(List<Departure> departures) { //sum passenger Integer values corresponding to timestamp
 
-        HashMap<LocalDateTime, Integer> graph = new HashMap<>();
+        TreeMap<LocalDateTime, Integer> graph = new TreeMap<>();
 
         for (Departure departure : departures
         ) {
             // get distribution map for every departure
-            Map<LocalDateTime, Integer> singleDistribution = calculateSingleDeparture(departure);
-            // sum current map values with graph values
-            singleDistribution.forEach((key, value) -> graph.merge(key, value, Integer::sum));
+            calculateSingleDepartureDistribution(departure)
+                    // sum current map values with graph values
+                    .forEach((key, value) -> graph.merge(key, value, Integer::sum));
         }
-        Map<LocalDateTime, Integer> sortedGraph = new TreeMap<>(graph);
-        return sortedGraph;
+        // return sorted graph
+        return graph;
     }
 
-    public Map<LocalDateTime, Integer> calculateSingleDeparture(Departure departure) {
+    public Map<LocalDateTime, Integer> calculateSingleDepartureDistribution(Departure departure) {
 
         //use distribution adaptation method
         Map<LocalDateTime, Integer> adaptedDistributionMap = distributionService.adaptDistribution(LocalDateTime.parse(departure.getDep_time(), formatter));
@@ -47,13 +50,12 @@ public class CalculationService {
         Integer passengerAmount = distributionService.getPassengerAmount(departure);
 
         //create dedicatedDistributionMap by modifying adapted distribution
-        Map<LocalDateTime, Integer> dedicatedDistributionMap = adaptedDistributionMap.entrySet()
+        return adaptedDistributionMap.entrySet()
                 .stream()
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         key -> key.getValue() * passengerAmount / 100
                 ));
-        return dedicatedDistributionMap;
     }
 
 }
