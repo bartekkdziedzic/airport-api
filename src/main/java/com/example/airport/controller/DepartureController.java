@@ -51,7 +51,7 @@ public class DepartureController {
     @GetMapping("/graph/{depIata}")
     public Map<LocalDateTime, Integer> getGraph(@PathVariable("depIata") String depIata) {
         List<Departure> departures = departureService.getDepartures(depIata);
-        Map<LocalDateTime, Integer> distribution = calculationService.calculateDepartureGraph(departures);
+        Map<LocalDateTime, Integer> distribution = calculationService.calculateDeparturesGraph(departures);
         databaseService.saveDistribution(depIata, distribution);
         return distribution;
     }
@@ -73,7 +73,7 @@ public class DepartureController {
 
         List<Departure> departures = FlightRadarResponseToDepartureMapper.mapFlightRadarResponseToDepartureList(flightRadarDepartureList, depIata);
 
-        Map<LocalDateTime, Integer> distribution = calculationService.calculateDepartureGraph(departures);
+        Map<LocalDateTime, Integer> distribution = calculationService.calculateDeparturesGraph(departures);
         databaseService.saveDistribution(depIata, distribution);
         return distribution;
     }

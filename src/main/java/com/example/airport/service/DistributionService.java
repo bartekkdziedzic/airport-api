@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -41,8 +40,8 @@ public class DistributionService {
         return enumMap;
     }
 
-    private HashMap<LocalDateTime, Integer> getLongestDistributionMap(LocalDateTime time) {
-        HashMap<LocalDateTime, Integer> longestDistributionMap = new HashMap<>();
+    private TreeMap<LocalDateTime, Integer> getLongestDistributionMap(LocalDateTime time) {
+        TreeMap<LocalDateTime, Integer> longestDistributionMap = new TreeMap<>();
         longestDistributionMap.put(time.minusMinutes(30), 2);
         longestDistributionMap.put(time.minusMinutes(45), 8);
         longestDistributionMap.put(time.minusMinutes(60), 17);
@@ -62,8 +61,8 @@ public class DistributionService {
     }
 
 
-    private HashMap<LocalDateTime, Integer> getShortestDistributionMap(LocalDateTime time) {
-        HashMap<LocalDateTime, Integer> shortestDistributionMap = new HashMap<>();
+    private TreeMap<LocalDateTime, Integer> getShortestDistributionMap(LocalDateTime time) {
+        TreeMap<LocalDateTime, Integer> shortestDistributionMap = new TreeMap<>();
         shortestDistributionMap.put(time.minusMinutes(30), 2);
         shortestDistributionMap.put(time.minusMinutes(45), 10);
         shortestDistributionMap.put(time.minusMinutes(60), 17);
@@ -82,12 +81,40 @@ public class DistributionService {
         return shortestDistributionMap;
     }
 
-    public TreeMap<LocalDateTime, Integer> interpolate(HashMap<LocalDateTime, Integer> map) {
-        TreeMap<LocalDateTime, Integer> sortedMap = new TreeMap<>(map);
+    public TreeMap<LocalDateTime, Integer> adaptDistribution(LocalDateTime time) {
+
+        if (time.getHour() >= 4 && time.getHour() <= 6) {
+            // shortest boundary distribution // 04:00 - 06:00 distribution
+            return getShortestDistributionMap(time);
+        } else if (time.getHour() > 21 || time.getHour() < 5) {
+            // longest boundary distribution // 22:00 - 04:00 distribution
+            return getLongestDistributionMap(time);
+
+        } else { // adaptation function
+            // define conditions for boundary distributions
+            TreeMap<LocalDateTime, Integer> longestDistributionMap = getLongestDistributionMap(time);
+            TreeMap<LocalDateTime, Integer> shortestDistributionMap = getShortestDistributionMap(time);
+
+            int adaptationOffset = time.getHour() - 6;
+            TreeMap<LocalDateTime, Integer> result = new TreeMap<>();
+            Double weightFactor = (double) adaptationOffset / 16;
+            for (LocalDateTime key : shortestDistributionMap.keySet()
+            ) {
+                // multiply each distribution map by
+                result.put(key, (int) (shortestDistributionMap.get(key) * weightFactor
+                        + longestDistributionMap.get(key) * (1 - weightFactor)));
+            }
+            return interpolate(result);
+        }
+    }
+
+
+    public TreeMap<LocalDateTime, Integer> interpolate(TreeMap<LocalDateTime, Integer> inputMap) {
+
         TreeMap<LocalDateTime, Integer> interpolatedMap = new TreeMap<>();
 
         Map.Entry<LocalDateTime, Integer> previousEntry = null;
-        for (Map.Entry<LocalDateTime, Integer> entry : sortedMap.entrySet()) {
+        for (Map.Entry<LocalDateTime, Integer> entry : inputMap.entrySet()) {
             if (previousEntry != null) {
                 LocalDateTime previousTime = previousEntry.getKey();
                 int previousValue = previousEntry.getValue();
@@ -110,35 +137,6 @@ public class DistributionService {
         return interpolatedMap;
     }
 
-
-    public Map<LocalDateTime, Integer> adaptDistribution(LocalDateTime time) {
-
-        // longest boundary distribution // 22:00 - 04:00 distribution
-        HashMap<LocalDateTime, Integer> longestDistributionMap = getLongestDistributionMap(time);
-
-
-        // shortest boundary distribution // 04:00 - 06:00 distribution
-        HashMap<LocalDateTime, Integer> shortestDistributionMap = getShortestDistributionMap(time);
-
-        //define conditions for boundary distributions
-        if (time.getHour() >= 4 && time.getHour() <= 6) {
-            return interpolate(shortestDistributionMap);
-        } else if (time.getHour() > 21 || time.getHour() < 5) {
-            return interpolate(longestDistributionMap);
-
-        } else { // adaptation function
-            int adaptationOffset = time.getHour() - 6;
-            HashMap<LocalDateTime, Integer> result = new HashMap<>();
-            Double weightFactor = (double) adaptationOffset / 16;
-            for (LocalDateTime key : shortestDistributionMap.keySet()
-            ) {
-                // multiply each distribution map by
-                result.put(key, (int) (shortestDistributionMap.get(key) * weightFactor
-                        + longestDistributionMap.get(key) * (1 - weightFactor)));
-            }
-            return interpolate(result);
-        }
-    }
 
     public Integer getPassengerAmount(Departure departure) { //possible redirect to double/float
         if (AircraftCode.contains(departure.getAircraft_icao()))
