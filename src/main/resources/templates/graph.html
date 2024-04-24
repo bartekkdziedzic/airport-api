@@ -6,8 +6,9 @@
 </head>
 <body>
 <div>
-    <label for="depIataInput">Enter Departure IATA Code:</label>
-    <input type="text" id="depIataInput" />
+    <label for="depIataInput">Enter Departure Airport City:</label>
+    <input type="text" id="depIataInput" oninput="showHint()" />
+    <div id="suggestions"></div>
     <button onclick="fetchGraph()">Generate Graph</button>
 </div>
 <div>
@@ -21,9 +22,47 @@
     /*]]>*/
 </script>
 <script>
+    let airportData = [];
+
+    // Read airport data from the text file
+    fetch('/api/airport-codes.txt')
+        .then(response => response.text())
+        .then(data => {
+            airportData = data.trim().split('\n').map(line => {
+                const parts = line.split(',');
+                return {
+                    iata: parts[9].trim(),
+                    municipality: parts[7].trim(),
+                };
+            }).filter(airport => airport.iata !== '');  // Filter out airports with empty IATA code
+            console.log(airportData);  // Log the fetched airport data to the console
+        });
+
+    function showHint() {
+        const input = document.getElementById('depIataInput').value.toUpperCase();
+        const suggestionsDiv = document.getElementById('suggestions');
+
+        // Clear previous suggestions
+        suggestionsDiv.innerHTML = '';
+
+        // Filter and display matching municipality names
+        const matchingAirports = airportData.filter(airport => airport.municipality.toUpperCase().startsWith(input));
+        matchingAirports.forEach(airport => {
+            const suggestion = document.createElement('div');
+            suggestion.textContent = `${airport.iata} - ${airport.municipality}`;
+            suggestion.onclick = () => {
+                document.getElementById('depIataInput').value = airport.municipality;
+                suggestionsDiv.innerHTML = '';
+                // Store the selected IATA code for fetching the graph
+                document.getElementById('depIataInput').dataset.selectedIata = airport.iata;
+            };
+            suggestionsDiv.appendChild(suggestion);
+        });
+    }
+
     function fetchGraph() {
-        var city = document.getElementById('depIataInput').value;
-        fetch('/api/graph/' + city)
+        var iata = document.getElementById('depIataInput').dataset.selectedIata;
+        fetch('/api/graph/' + iata)
             .then(response => response.json())
             .then(data => {
                 const ctx = document.getElementById('departureChart').getContext('2d');
@@ -57,8 +96,6 @@
         window.location.href = '/frgraph';
     }
 
-    // Initial fetch on page load (optional)
-    // fetchGraph();
 </script>
 </body>
 </html>
