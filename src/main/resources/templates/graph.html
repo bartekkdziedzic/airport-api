@@ -2,100 +2,134 @@
 <html>
 <head>
     <title>Wykres Odlotów</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wykres Odlotów</title>
+    <!-- Bootstrap core CSS -->
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <!-- SB Admin 2 CSS -->
+    <link href="css/sb-admin-2.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
-<div>
-    <label for="depIataInput">Enter Departure Airport City:</label>
-    <input type="text" id="depIataInput" oninput="showHint()" />
-    <div id="suggestions"></div>
-    <button onclick="fetchGraph()">Generate Graph</button>
-</div>
-<div>
-    <button onclick="navigateToFrgraph()">Go to FlightRadar Graph View</button>
-</div>
-<canvas id="departureChart"></canvas>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
-<script th:inline="javascript">
-    /*<![CDATA[*/
-    var city = /*[[${city}]]*/ 'defaultCity';
-    /*]]>*/
-</script>
-<script>
-    let airportData = [];
+<body id="page-top">
+<div id="wrapper">
+    <!-- Sidebar -->
+    <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+        <!-- Sidebar - Brand -->
+        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="index.html">
+            <div class="sidebar-brand-icon rotate-n-15">
+                <i class="fas fa-laugh-wink"></i>
+            </div>
+            <div class="sidebar-brand-text mx-3">AIR <sup>Departures</sup></div>
+        </a>
+        <!-- Divider -->
+        <hr class="sidebar-divider my-0">
+        <!-- Nav Item - Dashboard -->
+        <li class="nav-item active">
+            <a class="nav-link" href="/frgraph">
+                <i class="fas fa-fw fa-tachometer-alt"></i>
+                <span>Move to FR graph</span>
+            </a>
+        </li>
+        <!-- Divider -->
+        <hr class="sidebar-divider d-none d-md-block">
+    </ul>
+    <!-- End of Sidebar -->
+    <!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
+        <div>
+            <label for="depIataInput">Enter Departure Airport City:</label>
+            <input type="text" id="depIataInput" oninput="showHint()"/>
+            <div id="suggestions"></div>
+            <button onclick="fetchGraph()">Generate Graph</button>
+        </div>
+        <div>
+            <button onclick="navigateToFrgraph()">Go to FlightRadar Graph View</button>
+        </div>
+        <canvas id="departureChart"></canvas>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            var city = /*[[${city}]]*/ 'defaultCity';
+            /*]]>*/
+        </script>
+        <script>
+            let airportData = [];
 
-    // Read airport data from the text file
-    fetch('/api/airport-codes.txt')
-        .then(response => response.text())
-        .then(data => {
-            airportData = data.trim().split('\n').map(line => {
-                const parts = line.split(',');
-                return {
-                    iata: parts[9].trim(),
-                    municipality: parts[7].trim(),
-                };
-            }).filter(airport => airport.iata !== '');  // Filter out airports with empty IATA code
-            console.log(airportData);  // Log the fetched airport data to the console
-        });
+            // Read airport data from the text file
+            fetch('/api/airport-codes.txt')
+                .then(response => response.text())
+                .then(data => {
+                    airportData = data.trim().split('\n').map(line => {
+                        const parts = line.split(',');
+                        return {
+                            iata: parts[9].trim(),
+                            municipality: parts[7].trim(),
+                        };
+                    }).filter(airport => airport.iata !== '');  // Filter out airports with empty IATA code
+                    console.log(airportData);  // Log the fetched airport data to the console
+                });
 
-    function showHint() {
-        const input = document.getElementById('depIataInput').value.toUpperCase();
-        const suggestionsDiv = document.getElementById('suggestions');
+            function showHint() {
+                const input = document.getElementById('depIataInput').value.toUpperCase();
+                const suggestionsDiv = document.getElementById('suggestions');
 
-        // Clear previous suggestions
-        suggestionsDiv.innerHTML = '';
-
-        // Filter and display matching municipality names
-        const matchingAirports = airportData.filter(airport => airport.municipality.toUpperCase().startsWith(input));
-        matchingAirports.forEach(airport => {
-            const suggestion = document.createElement('div');
-            suggestion.textContent = `${airport.iata} - ${airport.municipality}`;
-            suggestion.onclick = () => {
-                document.getElementById('depIataInput').value = airport.municipality;
+                // Clear previous suggestions
                 suggestionsDiv.innerHTML = '';
-                // Store the selected IATA code for fetching the graph
-                document.getElementById('depIataInput').dataset.selectedIata = airport.iata;
-            };
-            suggestionsDiv.appendChild(suggestion);
-        });
-    }
 
-    function fetchGraph() {
-        var iata = document.getElementById('depIataInput').dataset.selectedIata;
-        fetch('/api/graph/' + iata)
-            .then(response => response.json())
-            .then(data => {
-                const ctx = document.getElementById('departureChart').getContext('2d');
-                new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: Object.keys(data),
-                        datasets: [{
-                            label: 'People arriving',
-                            data: Object.values(data),
-                            fill: false,
-                            borderColor: 'rgb(75, 192, 192)',
-                            tension: 0.1
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            x: {
-                                type: 'time',
-                                time: {
-                                    unit: 'day'
+                // Filter and display matching municipality names
+                const matchingAirports = airportData.filter(airport => airport.municipality.toUpperCase().startsWith(input));
+                matchingAirports.forEach(airport => {
+                    const suggestion = document.createElement('div');
+                    suggestion.textContent = `${airport.iata} - ${airport.municipality}`;
+                    suggestion.onclick = () => {
+                        document.getElementById('depIataInput').value = airport.municipality;
+                        suggestionsDiv.innerHTML = '';
+                        // Store the selected IATA code for fetching the graph
+                        document.getElementById('depIataInput').dataset.selectedIata = airport.iata;
+                    };
+                    suggestionsDiv.appendChild(suggestion);
+                });
+            }
+
+            function fetchGraph() {
+                var iata = document.getElementById('depIataInput').dataset.selectedIata;
+                fetch('/api/graph/' + iata)
+                    .then(response => response.json())
+                    .then(data => {
+                        const ctx = document.getElementById('departureChart').getContext('2d');
+                        new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: Object.keys(data),
+                                datasets: [{
+                                    label: 'People arriving',
+                                    data: Object.values(data),
+                                    fill: false,
+                                    borderColor: 'rgb(75, 192, 192)',
+                                    tension: 0.1
+                                }]
+                            },
+                            options: {
+                                scales: {
+                                    x: {
+                                        type: 'time',
+                                        time: {
+                                            unit: 'day'
+                                        }
+                                    }
                                 }
                             }
-                        }
-                    }
-                });
-            });
-    }
+                        });
+                    });
+            }
 
-    function navigateToFrgraph() {
-        window.location.href = '/frgraph';
-    }
+            function navigateToFrgraph() {
+                window.location.href = '/frgraph';
+            }
 
-</script>
+        </script>
+    </div>
+</div>
 </body>
 </html>
